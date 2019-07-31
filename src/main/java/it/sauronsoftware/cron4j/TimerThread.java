@@ -82,7 +82,7 @@ class TimerThread extends Thread {
 			long before = System.currentTimeMillis();
 			sleep(millis - done);
 			long after = System.currentTimeMillis();
-			done += (after - before);
+			done += Math.abs(after - before);
 		} while (done < millis);
 	}
 
@@ -92,12 +92,16 @@ class TimerThread extends Thread {
 	public void run() {
 		// What time is it?
 		long millis = System.currentTimeMillis();
-		// Calculating next minute.
-		long nextMinute = ((millis / 60000) + 1) * 60000;
 		// Work until the scheduler is started.
 		for (;;) {
-			// Coffee break 'till next minute comes!
-			long sleepTime = (nextMinute - System.currentTimeMillis());
+			// Calculating next seconds.
+			long nextSecond = ((System.currentTimeMillis() / 1000) + 1) * 1000;
+			// Coffee break 'till next seconds comes!
+			long sleepTime = (nextSecond - System.currentTimeMillis());
+			//time is changed
+			if(sleepTime > 1000) {
+				continue;
+			}
 			if (sleepTime > 0) {
 				try {
 					safeSleep(sleepTime);
@@ -106,14 +110,10 @@ class TimerThread extends Thread {
 					break;
 				}
 			}
-			// What time is it?
 			millis = System.currentTimeMillis();
 			// Launching the launching thread!
 			scheduler.spawnLauncher(millis);
-			// Calculating next minute.
-			nextMinute = ((millis / 60000) + 1) * 60000;
 		}
-		// Discard scheduler reference.
 		scheduler = null;
 	}
 
